@@ -1,0 +1,1 @@
+web: gunicorn intent_classification_backend.wsgi --log-file -
