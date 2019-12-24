@@ -16,7 +16,8 @@ class PredictCategory(APIView):
         id_predict_category = module.predict(content)
         if id_predict_category == -1:
             return Response({"result": None, "error": "The request could not be processed due to a syntax error."})
-        return Response({"result": id_predict_category, "error": ""})
+        return CategorySingleView.get(self, request, id_predict_category)
+
 
     def put(self, request):
         list_requests = []
