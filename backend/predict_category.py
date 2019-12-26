@@ -37,7 +37,7 @@ class PredictCategory(APIView):
             return Response({"result": None, "error": "The request could not be processed due to a syntax error."})
         return Response({"result": "Модель переобучена"})
 
-    def post(self, request):
+    """ def post(self, request):
         path = self.request.query_params.get('path', None)
         #'C:/Users/egorg/Downloads/Telegram Desktop/russian_train.xlsx'
         try:
@@ -59,4 +59,17 @@ class PredictCategory(APIView):
                     category = Categories.objects.get(id=category_id)
                     if category:
                         category.requests_set.add(new_request)
-        return Response({"result": "success"})
+        return Response({"result": "success"})"""
+    def post(self, request):
+        body_params = QueryDict(request.body)
+        try:
+            content = body_params['content']
+        except Exception:
+            return Response({"result": None, "error": "The request could not be processed due to a syntax error."})
+        try:
+            id_predict_category = module.predict(content)
+        except Exception:
+            return Response({"result": None, "error": "Все сломалось, предсказание не работает. Надо обновить модель локально!"})
+        if id_predict_category == -1:
+            return Response({"result": None, "error": "The request could not be processed due to a syntax error."})
+        return CategorySingleView.get(self, request, id_predict_category)
