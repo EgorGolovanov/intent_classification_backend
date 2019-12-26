@@ -16,7 +16,11 @@ class PredictCategory(APIView):
             content = body_params['content']
         except Exception:
             return Response({"result": None, "error": "The request could not be processed due to a syntax error."})
-        id_predict_category = module.predict(content)
+        try:
+            id_predict_category = module.predict(content)
+        except Exception:
+            return Response(
+                {"result": None, "error": "Все сломалось, предсказание не работает. Надо обновить модель локально!"})
         if id_predict_category == -1:
             return Response({"result": None, "error": "The request could not be processed due to a syntax error."})
         return CategorySingleView.get(self, request, id_predict_category)
