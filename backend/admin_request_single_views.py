@@ -54,11 +54,19 @@ class AdminRequestSingleView(APIView):
             request_object = get_object_or_404(Requests.objects.all(), pk=pk)
         except Exception:
             return Response({"result": None, "error": "The request could not be processed due to a syntax error."})
-        request_object.delete()
+        try:
+            request_object.delete()
+        except Exception:
+            return Response({"result": None, "error": "The request could not be processed due to a syntax error."})
+
         requests = Requests.objects.all()
         for item in requests:
             list_categories = item.categories.all()
             if not list_categories:
                 item.is_marked_up = False
-                item.save()
+                try:
+                    item.save()
+                except Exception:
+                    return Response({"result": None, "error": "The request could not be processed due to a syntax error."})
+
         return Response({"result": None, "error": None})

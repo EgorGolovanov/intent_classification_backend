@@ -13,7 +13,7 @@ class RequestView(APIView):
     def get(self, request):
         queryset = Requests.objects.all().order_by('id')
 
-        marked_up = bool(self.request.query_params.get('is_marked_up', None))
+        marked_up = self.request.query_params.get('is_marked_up', None)
         q = self.request.query_params.get('q', None)
         page = int(self.request.query_params.get('page', 1))
         per = int(self.request.query_params.get('per', 25))
@@ -25,7 +25,10 @@ class RequestView(APIView):
             queryset = queryset.filter(content__contains=q)
 
         paginator = Paginator(queryset, per)  # Show 25 contacts per page
-        result = paginator.get_page(page)
+        try:
+            result = paginator.get_page(page)
+        except Exception:
+            return Response({"result": None, "error": "The request could not be processed due to a syntax error."})
         next_page = None
 
         if page + 1 <= paginator.num_pages:

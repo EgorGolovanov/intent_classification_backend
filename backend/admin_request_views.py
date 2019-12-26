@@ -26,7 +26,10 @@ class AdminRequestView(APIView):
             queryset = queryset.filter(content__contains=q)
 
         paginator = Paginator(queryset, per)  # Show 25 contacts per page
-        result = paginator.get_page(page)
+        try:
+            result = paginator.get_page(page)
+        except Exception:
+            return Response({"result": None, "error": "The request could not be processed due to a syntax error."})
         next_page = None
         if page + 1 <= paginator.num_pages:
             next_page = page + 1
@@ -42,13 +45,19 @@ class AdminRequestView(APIView):
 
     def post(self, request):
         post_params = QueryDict(request.body)
-        content = post_params['content']
+        try:
+            content = post_params['content']
+        except Exception:
+            return Response({"result": None, "error": "The request could not be processed due to a syntax error."})
         category_ids = post_params.getlist('category_ids', None)
         new_request = Requests.objects.create(content=content)
 
         if category_ids:
             new_request.is_marked_up = True
-            new_request.save()
+            try:
+                new_request.save()
+            except Exception:
+                return Response({"result": None, "error": "The request could not be processed due to a syntax error."})
             for category_id in category_ids:
                 category = Categories.objects.get(id=category_id)
                 if category is not None:

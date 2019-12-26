@@ -19,7 +19,11 @@ class AdminCategoryView(APIView):
 
     def post(self, request):
         post_params = QueryDict(request.body)
-        name = post_params['name']
+        try:
+            name = post_params['name']
+        except Exception:
+            return Response({"result": None, "error": "The request could not be processed due to a syntax error."})
+
         new_category = Categories.objects.create(name=name)
 
         return AdminCategorySingleView.get(self, request, new_category.pk)
